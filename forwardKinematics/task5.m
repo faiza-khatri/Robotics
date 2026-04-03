@@ -1,0 +1,61 @@
+%task 5.5
+%arb = Arbotix('port', 'COM5', 'nservos', 5)
+syms theta1 theta2 theta3 theta4 real
+
+L1 = 0.045;%meters
+L2 = 0.1035;   
+L3 = 0.1035;  
+L4 = 0.11;   
+
+S1 = [0; 0; 1; 0; 0; 0];
+S2 = [1; 0; 0; 0; -L1; 0];
+S3 = [1; 0; 0; 0; -(L1+L2); 0];
+S4 = [1; 0; 0; 0; -(L1+L2+L3); 0];
+
+function T = screwExp(S, theta)
+    w = S(1:3);
+    v = S(4:6);
+    
+    W = [  0    -w(3)  w(2);
+          w(3)   0    -w(1);
+         -w(2)  w(1)   0  ];
+    
+    R = eye(3) + sin(theta)*W + (1-cos(theta))*W^2;
+
+    p = (eye(3) - R) * cross(w,v) + w * (w'*v) * theta;
+        
+    T = [R, p; 0 0 0 1];
+end
+
+M = [0   0  1  0;
+     0   1  0  0;
+     -1  0  0  L1+L2+L3+L4;
+     0  0  0  1];
+
+T01 = screwExp(S1, theta1);
+T12 = screwExp(S2, theta2);
+T23 = screwExp(S3, theta3);
+T34 = screwExp(S4, theta4);
+
+T04 = simplify(T01 * T12 * T23 * T34 * M);
+
+disp('POE T0_4 =')
+disp(T04)
+
+
+
+function T = dh_transform(a, alpha, d, theta)
+    T = [cos(theta), -sin(theta)*cos(alpha),  sin(theta)*sin(alpha), a*cos(theta);
+         sin(theta),  cos(theta)*cos(alpha), -cos(theta)*sin(alpha), a*sin(theta);
+         0,           sin(alpha),             cos(alpha),            d;
+         0,           0,                      0,                     1];
+end
+
+A01 = dh_transform(0, -sym(pi)/2, L1, theta1 + (sym(pi)/2));
+A12 = dh_transform(L2, 0, 0, theta2 - (sym(pi)/2));
+A23 = dh_transform(L3, 0, 0, theta3);
+A34 = dh_transform(L4, 0, 0, theta4);
+
+T04 = simplify(A01 * A12 * A23 * A34);
+disp('DH T0_4 =')
+disp(T04)
