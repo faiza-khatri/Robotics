@@ -51,7 +51,7 @@ function T = dh_transform(a, alpha, d, theta)
          0,           0,                      0,                     1];
 end
 
-A01 = dh_transform(0, -sym(pi)/2, L1, theta1);
+A01 = dh_transform(0, sym(pi)/2, L1, theta1);
 A12 = dh_transform(L2, 0, 0, theta2 + sym(pi)/2);
 A23 = dh_transform(L3, 0, 0, theta3);
 A34 = dh_transform(L4, 0, 0, theta4);
