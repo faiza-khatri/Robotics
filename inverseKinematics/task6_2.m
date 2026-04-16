@@ -1,7 +1,7 @@
 % since we have FOUR solutions, the output is a 4x4 matrix
 function solutions = findJointAngles(x,y,z,phi)
-    d1 = 4.5; 
-    a2 = 10.35; a3 = 10.35; a4 = 11;
+    d1 = 0.045; 
+    a2 = 0.1035; a3 = 0.1035; a4 = 0.11;
 
     r = sqrt(x^2 + y^2);
     s = z - d1;
