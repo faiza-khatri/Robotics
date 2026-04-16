@@ -24,7 +24,7 @@ addBody(robot, body1, 'base');       % attaching body1 to the base of the robot
 % joint 2 - shoulder
 body2 = rigidBody('body2');          % creating rigid body for link 2
 jnt2 = rigidBodyJoint('jnt2','revolute');  % revolute joint
-T_12 = dh(0, -pi/2, L1, 0);        % dh transform from 1 to 2
+T_12 = dh(0, pi/2, L1, 0);        % dh transform from 1 to 2
 setFixedTransform(jnt2, T_12);      % setting the fixed transform between body1 and body2
 jnt2.JointAxis = [0 0 1];           % rotates about its local z axis
 jnt2.PositionLimits = [-150 150]*pi/180;  % same motor limits
@@ -60,4 +60,5 @@ addBody(robot, ee, 'body4');        % attaching end-effector to body4
 % printing robot details to verify the chain is correct
 showdetails(robot)
 % visualizing the robot in its zero configuration
-show(robot);
+q_home = [0; pi/2; 0; 0]; 
+show(robot, q_home);
