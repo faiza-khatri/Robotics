@@ -35,6 +35,6 @@ function solutions = findJointAngles(x,y,z,phi)
     end
 end
 solutions = zeros(4, 4);
-x = 2; y = 2; z = 2;
+x = 0.02; y = 0.02; z = 0.02;
 phi = 2*pi;
 solutions = findJointAngles(x, y, z, phi)
