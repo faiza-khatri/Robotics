@@ -33,8 +33,9 @@ function solutions = findJointAngles(x,y,z,phi)
             idx = idx + 1;
         end
     end
+    solutions = arctan(sin(solution), cos(solutions));
 end
 solutions = zeros(4, 4);
 x = 0.02; y = 0.02; z = 0.02;
-phi = 2*pi;
+phi = 0;
 solutions = findJointAngles(x, y, z, phi)
