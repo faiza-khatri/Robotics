@@ -1,0 +1,19 @@
+function errorCode = setPosition(jointAngles)
+% Accepts joint angles in degrees, sets them as goal positions for motors.
+% errorCode = 1 : success, all joints set successfully
+% errorCode = 0 : failure, a joint angle was out of range [-140, 140] degrees
+% we are setting lim [-140, 140] as to be more cautious
+
+    for i = 1:length(jointAngles)
+        angleRad = jointAngles(i) * pi/180;  % convert degrees to radians for arb.setpos
+        
+        if jointAngles(i) > 140 || jointAngles(i) < -140  % check limits in degrees
+            errorCode = 0;  % failure
+            fprintf('Joint %d angle out of range\n', i);
+            return;
+        else
+            arb.setpos(i, angleRad, 20);
+            errorCode = 1;  % success
+        end
+    end
+end
