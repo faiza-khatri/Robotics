@@ -10,6 +10,7 @@ function solutions = findJointAngles(x,y,z,phi)
     s_bar = s - a4 * sin(phi);
 
     cos_theta3 = (r_bar^2 + s_bar^2 - a2^2 - a3^2) / (2 * a2 * a3);
+    cos_theta3 = max(-1, min(1, cos_theta3));  % clamp to [-1, 1]
 
     % theta3 solutions
     
@@ -19,7 +20,7 @@ function solutions = findJointAngles(x,y,z,phi)
         return;
     end
     theta3_solutions = [acos(cos_theta3), -acos(cos_theta3)];
-    theta1_solutions = [atan2(y, x), atan2(-y, -x)];
+    theta1_solutions = [atan2(y, x), -2*pi + atan2(y, x)];
 
     solutions = zeros(4, 4);
     idx = 1;
