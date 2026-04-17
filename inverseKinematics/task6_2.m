@@ -27,8 +27,9 @@ function solutions = findJointAngles(x,y,z,phi)
         theta1 = theta1_solutions(i);
         for j = 1:length(theta3_solutions)
             theta3 = theta3_solutions(j);
-            theta2 = atan2(s_bar, r_bar) - atan2(a3 * sin(theta3), a2 + a3 * cos(theta3));
-            theta4 = phi - theta2 - theta3;
+            theta2_geom = atan2(s_bar, r_bar) - atan2(a3 * sin(theta3), a2 + a3 * cos(theta3));
+            theta2 = theta2_geom - pi/2;  
+            theta4 = phi - theta2_geom - theta3;
             solutions(idx, :) = [theta1, theta2, theta3, theta4];
             idx = idx + 1;
         end
