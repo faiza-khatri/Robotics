@@ -2,8 +2,8 @@
 function dhJointAngles = servo2dh(jointAngles)
     
     % offset: dh_angle = servo_angle + offset
-    offset = [0, 90, 90, 90];   % in radians 
-    sign  = [1, -1, -1, -1];   % depends on rotation direction
+    offset = [0, pi/2, 0, 0];   % in radians 
+    sign  = [1, 1, 1, 1];   % depends on rotation direction
     dhJointAngles = zeros(1,4); %initializing a zero vector 
 
     %calculating dh joint angles
@@ -13,3 +13,5 @@ function dhJointAngles = servo2dh(jointAngles)
     dhJointAngles(4) = sign(4) .* jointAngles(4) + offset(4);
 
 end
+
+dhJointAngles = servo2dh([0 0 0 0])
