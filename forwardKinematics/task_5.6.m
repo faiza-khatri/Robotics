@@ -23,18 +23,19 @@ function [x,y,z,R] = pincherFK(jointAngles)
     theta4 = jointAngles(4);
     
     %calculating intermediate transformations
-    A01 = dh_transform(0, sym(pi)/2, L1, theta1);
-    A12 = dh_transform(L2, 0, 0, theta2 + sym(pi)/2);
+    A01 = dh_transform(0, pi/2, L1, theta1);
+    A12 = dh_transform(L2, 0, 0, theta2 + pi/2);
     A23 = dh_transform(L3, 0, 0, theta3);
     A34 = dh_transform(L4, 0, 0, theta4);
 
     
     %resultant transformation
-    T04 = simplify(A01 * A12 * A23 * A34);
+    T04 = A01 * A12 * A23 * A34;
 
     p = T04(1:3,4); % end effector position
     R = T04(1:3,1:3); % end effector orientation
 
-    x = vpa(p(1), 6); y = vpa(p(2), 6); z = vpa(p(3), 6);
+    x = p(1); y = p(2); z = p(3);
 
 end
+
