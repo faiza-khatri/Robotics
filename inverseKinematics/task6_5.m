@@ -7,12 +7,12 @@ function optSolution = findSolution(x, y, z, phi, currentConfig, robot)
     % [theta1, theta2, theta3, theta4] - optimal realizable inverse
     % kinematics solution
 
-    % all angles should be within -150, 150
+    % all angles should be within -150, 150 but we have kept it -140 140 for safe operation.
     % collision free path
 
     % motor limits
-    JOINT_MIN = -150 * pi/180; % -5*pi/6
-    JOINT_MAX =  150 * pi/180; %  5*pi/6
+    JOINT_MIN = -140 * pi/180; % -5*pi/6
+    JOINT_MAX =  140 * pi/180; %  5*pi/6
 
     allDH = findJointAngles(x, y, z, phi);
     b = [3; 3; 1; 1];          % b1 b2 b3 b4
@@ -23,7 +23,7 @@ function optSolution = findSolution(x, y, z, phi, currentConfig, robot)
     end
 
     % accomodating dh and servo difference in home config
-    servo_offset = [0; pi/2; 0; 0];   % column vector
+    servo_offset = [0; 0; 0; 0];   % column vector
     
     validServo   = [];   % rows: valid servo-angle solutions
     validDH      = [];   % corresponding DH solutions (needed for FK / cost)
@@ -92,22 +92,16 @@ function optSolution = findSolution(x, y, z, phi, currentConfig, robot)
     end
 
 
-
-
-% =========================================================================
-% Quick self-test (comment out when deploying on real hardware)
-% =========================================================================
-
-%Build the robot (copy your rigidBodyTree setup here or load it)
-robot = getRobot()
-
+arb = Arbotix('port', 'COM12', 'nservos', 5);
+robotBundle.hw = arb;
+robotBundle.model = getRobot();
 %Suppose the robot is currently at its home configuration (servo space)
-currentConfig = [0; pi/2; 0; 0];
+currentConfig = arb.getpos();
 
 %Ask for a target pose
 x = 0.15; y = 0.05; z = 0.08; phi = -pi/6;
 
-sol = findSolution(x, y, z, phi, currentConfig, robot);
+sol = findSolution(x, y, z, phi, currentConfig(1:4)', robotBundle);
 
 if ~isempty(sol)
     disp('Optimal DH solution (rad):'); disp(sol);
