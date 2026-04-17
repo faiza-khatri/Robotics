@@ -29,4 +29,6 @@ function [x,y,z,R] = pincherFK(jointAngles)
     p = T04(1:3,4); % end effector position
     R = T04(1:3,1:3); % end effector orientation
 
+    x = vpa(p(1), 6); y = vpa(p(2), 6); z = vpa(p(3), 6);
+
 end
