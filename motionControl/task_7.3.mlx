@@ -7,7 +7,7 @@ function errorCode = setPosition(jointAngles)
     for i = 1:length(jointAngles)
         angleRad = jointAngles(i) * pi/180;  % convert degrees to radians for arb.setpos
         
-        if jointAngles(i) > 140 || jointAngles(i) < -140  % check limits in degrees
+        if jointAngles(i) > 2.44 || jointAngles(i) < -2.44  % check limits in degrees
             errorCode = 0;  % failure
             fprintf('Joint %d angle out of range\n', i);
             return;
