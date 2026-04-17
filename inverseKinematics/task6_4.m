@@ -3,6 +3,12 @@ function collisionDetected = checkSelfCollision(robot, q_init, q_final, numSampl
         numSamples = 100;  % default number of samples
     end
 
+    if isstruct(robot) && isfield(robot, 'model')
+        rbtModel = robot.model;
+    else
+        rbtModel = robot;
+    end
+
     collisionDetected = false;
 
    
@@ -16,7 +22,7 @@ function collisionDetected = checkSelfCollision(robot, q_init, q_final, numSampl
         q_interp = (1 - t) * q_init + t * q_final;
 
         
-        [isColliding, separationDist] = checkCollision(robot, q_interp, 'Exhaustive', 'on', 'SkippedSelfCollisions', 'parent');
+        [isColliding, separationDist] = checkCollision(rbtModel, q_interp, 'Exhaustive', 'on', 'SkippedSelfCollisions', 'parent');
         if any(isColliding, 'all')
             collisionDetected = true;
             fprintf('Self-collision detected at t = %.3f (sample %d/%d)\n', t, i, numSamples);
@@ -29,11 +35,6 @@ function collisionDetected = checkSelfCollision(robot, q_init, q_final, numSampl
         disp('No self-collision detected along path.');
     end
 end
-
-q_init  = [0; pi/2; 0; 0];
-q_final = [pi/4; pi/4; pi/4; 0];
-
-collisionDetected = checkSelfCollision(robot, q_init, q_final, 100);
 
 % test with a config likely to self-collide
 q_init  = [0; pi/2; 0; 0];
