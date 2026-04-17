@@ -2,7 +2,7 @@
 function dhJointAngles = servo2dh(jointAngles)
     
     % offset: dh_angle = servo_angle + offset
-    offset = [0, pi/2, 0, 0];   % in radians 
+    offset = [0,0, 0, 0];   % in radians (since we have already accomodated dh offset in its theta definition, we can have offset 0 here and get correct ans)
     sign  = [1, 1, 1, 1];   % depends on rotation direction
     dhJointAngles = zeros(1,4); %initializing a zero vector 
 
