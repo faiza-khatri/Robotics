@@ -66,8 +66,7 @@ setFixedTransform(ee.Joint, T_34); % fixed transform, ee doesnt move relative to
 addCollision(ee, 'sphere', 0.02);              % sphere of radius 2cm for gripper
 addBody(robot, ee, 'body4');        % attaching end-effector to body4
 
-% printing robot details to verify the chain is correct
-showdetails(robot)
+
 % visualizing the robot in its zero configuration
 q_home = [0; 0; 0; 0]; 
 show(robot, q_home, 'Collisions', 'on');

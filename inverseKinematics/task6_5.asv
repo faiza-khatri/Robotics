@@ -14,7 +14,7 @@ function optSolution = findSolution(x, y, z, phi, currentConfig, robot)
     JOINT_MIN = -140 * pi/180; % -5*pi/6
     JOINT_MAX =  140 * pi/180; %  5*pi/6
 
-    allDH = findJointAngles(x, y, z, phi)
+    allDH = findJointAngles(x, y, z, phi);
     b = [3; 3; 1; 1];          % b1 b2 b3 b4
     if isempty(allDH)
         warning('findSolution: target is out of reach – no IK solution.');
@@ -90,9 +90,35 @@ function optSolution = findSolution(x, y, z, phi, currentConfig, robot)
         optSolution' * 180/pi);
     fprintf('              cost = %.4f rad\n', bestCost);
     end
+
+
+%arb = Arbotix('port', 'COM12', 'nservos', 5);
+%robotBundle.hw = arb;
+%robotBundle.model = getRobot();
+%Suppose the robot is currently at its home configuration (servo space)
+%currentConfig = arb.getpos();
+
+
+%Ask for a target pose
+x = 0.15; y = 0.05; z = 0.08; phi = -pi/6;
+
+sol = findSolution(x, y, z, phi, currentConfig(1:4)', robot);
+
+if ~isempty(sol)
+    disp('Optimal DH solution (rad):'); disp(sol);
+    disp('Optimal DH solution (deg):'); disp(sol * 180/pi);
+else
+    disp('No valid solution found.');
+end
+
 function a = wrapToPi(a)
     a = mod(a + pi, 2*pi) - pi;
 end
+% arb = Arbotix('port', 'COM5', 'nservos', 5);
+% 
+% function q = getCurrentPose(arb)
+%     q = arb.getpos();
+% end
 
 function ok = checkJointLimits(tServo, jointMin, jointMax)
     ok = all(tServo >= jointMin) && all(tServo <= jointMax);
