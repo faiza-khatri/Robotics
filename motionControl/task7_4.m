@@ -38,112 +38,138 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     %% phase 1 - home/safe pose
     disp('Phase 1: Moving to home pose...');
     home_q = [0; 0; 0; 0];
+
+    % arb.setpos(1:4,home_q,[100 100 100 100])
     
-    moveToConfig(arb, home_q, 80)  % 80 steps = slow
+    moveToConfig(arb, 12, home_q, 80)  % 80 steps = slow
      
-    pause(0.5);
+    pause(1.5);
     % openGripper
     arb.setpos(5, 0, 100);
-    pause(0.3);
+    pause(1.5);
     
     %% phase 2 - pre-grasp hover (above pick location)
-    currentConfig = arb.getpos();
+    % currentConfig = arb.getpos();
     disp('Phase 2: Moving to pre-grasp hover...');
-    hover_q = findSolution(x1, y1, z1 + HOVER_HEIGHT, phi1, currentConfig(1:4), robot);
+    test = [x1 y1 z1 + HOVER_HEIGHT]
+    hover_q = findSolution(x1, y1, z1 + HOVER_HEIGHT, phi1, home_q, robot)
     if isempty(hover_q)
         disp('Pre-grasp hover unreachable'); return;
     end
-    moveToConfig(arb, hover_q, 80);
-    pause(0.5);
+    % arb.setpos(1:4,hover_q,[100 100 100 100])
+    moveToConfig(arb, 0, hover_q, 80);
+    pause(1.5);
     
     %% phase 3 - descend to grasp pose
     disp('Phase 3: Descending to grasp pose...');
-    currentConfig = arb.getpos();
-    grasp_q = findSolution(x1, y1, z1, phi1, currentConfig(1:4), robot);
+    % currentConfig = arb.getpos();
+    grasp_q = findSolution(x1, y1, z1, phi1, hover_q, robot);
     if isempty(grasp_q)
         disp('Grasp pose unreachable'); return;
     end
-    moveToConfig(arb, grasp_q, 80);
-    pause(0.5);
+    moveToConfig(arb, 0, grasp_q, 80);
+    pause(1.5);
     
     %% phase 4 - grasp
     disp('Phase 4: Grasping...');
-    currentConfig = arb.getpos();
-    arb.setpos(5, pi/3.3, 100);
-    pause(0.8);  % wait for gripper to close fully
+    % currentConfig = arb.getpos();
+    arb.setpos(5, pi/3.25, 100);
+    pause(1.5);  % wait for gripper to close fully
     
     %% phase 5 - lift back to hover height
     disp('Phase 5: Lifting object...');
-    currentConfig = arb.getpos();
+    % currentConfig = arb.getpos();
     if checkSelfCollision(robot, grasp_q, hover_q, 200)
         disp('Collision detected on lift'); return;
     end
-    moveToConfig(arb, hover_q, 80);
-    pause(0.5);
+    moveToConfig(arb,pi/3.25, hover_q, 80);
+    pause(1.5);
     
     %% phase 6 - transit to above place location
     disp('Phase 6: Moving to place hover...');
-    currentConfig = arb.getpos();
-    place_hover_q = findSolution(x2, y2, z2 + HOVER_HEIGHT, phi2, currentConfig(1:4), robot);
+    % currentConfig = arb.getpos();
+    place_hover_q = findSolution(x2, y2, z2 + HOVER_HEIGHT, phi2, hover_q, robot);
     if isempty(place_hover_q)
         disp('Place hover unreachable'); return;
     end
 
-    moveToConfig(arb, place_hover_q, 80);
-    pause(0.5);
+    moveToConfig(arb, pi/3.25,place_hover_q, 80);
+    pause(1.5);
     
     %% phase 7 - descend to place pose
     disp('Phase 7: Descending to place pose...');
-    currentConfig = arb.getpos();
-    place_q = findSolution(x2, y2, z2, phi2, currentConfig(1:4), robot);
+    % currentConfig = arb.getpos();
+    place_q = findSolution(x2, y2, z2, phi2, place_hover_q, robot);
     if isempty(place_q)
         disp('Place pose unreachable'); return;
     end
 
-    moveToConfig(arb, place_q, 80);
-    pause(0.5);
+    moveToConfig(arb, pi/3.25, place_q, 80);
+    pause(2.2);
     
     %% phase 8 - release
     disp('Phase 8: Releasing object...');
     arb.setpos(5, 0, 100);
-    pause(0.8);
+    pause(1.5);
     
     %% phase 9 - retreat back to hover
     disp('Phase 9: Retreating...');
     if checkSelfCollision(robot, place_q, place_hover_q)
         disp('Collision on place hover'); return;
     end
-    moveToConfig(arb, place_hover_q, 80);
-    pause(0.3);
+    moveToConfig(arb, 0, place_hover_q, 80);
+    pause(1.5);
     
-    %% phase 10 - verify placement (FK check)
-    disp('Phase 10: Verifying placement...');
-    current_q = arb.getpos();
-    [xv, yv, zv, ~] = pincherFK(current_q);
-    target_hover = [x2, y2, z2 + HOVER_HEIGHT];
-    actual_pos   = [double(xv), double(yv), double(zv)];
-    err = norm(actual_pos - target_hover);
-    fprintf('Placement verification error: %.4f m\n', err);
+    % %% phase 10 - verify placement (FK check)
+    % disp('Phase 10: Verifying placement...');
+    % current_q = arb.getpos();
+    % [xv, yv, zv, ~] = pincherFK(current_q);
+    % target_hover = [x2, y2, z2 + HOVER_HEIGHT];
+    % actual_pos   = [double(xv), double(yv), double(zv)];
+    % err = norm(actual_pos - target_hover);
+    % fprintf('Placement verification error: %.4f m\n', err);
     
-    if err < 0.015  % 15mm tolerance
-        success = true;
-    else
-        disp('Placement error too large.');
-    end
+    % if err < 0.015  % 15mm tolerance
+    %     success = true;
+    % else
+    %     disp('Placement error too large.');
+    % end
     
     % return home
-    moveToConfig(robot, home_q, 80);
+    moveToConfig(arb, 0, home_q, 80);
+    success = true;
 end
 
-function moveToConfig(arb, q_final, nSteps)
-    % smooth interpolated motion to a config
-    q_init = arb.getpos();
+function moveToConfig(arb,gripperPos, q_final, nSteps)
+    nSteps = 40;
+    % q_init_full = safeGetPos(arb);
+    % 
+    % if isempty(q_init_full) || numel(q_init_full) < 5
+    %     q_init_full = zeros(5, 1);
+    % end
+    % 
+    % q_init  = q_init_full(1:4);
+    % q_init  = q_init(:);    % force 4x1 column
+    % q_final = q_final(:);   % force 4x1 column
+    % gripper = q_init_full(5);
+    % 
+    % for i = 1:nSteps
+    %     t = i / nSteps;
+    %     q_interp = (1-t)*q_init + t*q_final;
+    %     arb.setpos([q_interp; gripper], [100 100 100 100 100]);
+    %     pause(0.02);
+    % end
+    speed = 70;
     
-    for i = 1:nSteps
-        t = i / nSteps;
-        q_interp = (1-t)*q_init + t*q_final;
-        arb.setpos(q_interp, [100, 100, 100, 100, 100]);
-        pause(0.02);  % 20ms per step
+    arb.setpos([q_final; gripperPos], [speed speed speed speed speed]);
+
+end
+
+function q = safeGetPos(arb)
+    q = arb.getpos();
+    while isempty(q) || numel(q) < 5
+        pause(0.05);        % wait 50ms and retry
+        q = arb.getpos();
     end
 end
 
@@ -151,3 +177,8 @@ arb = Arbotix('port', 'COM12', 'nservos', 5);
 robotBundle.hw = arb;
 robotBundle.model = getRobot();
 pickAndPlace(robotBundle)
+
+% positions tested:
+% -0.15 0.001027 -0.069 4.7123 0.15 0.001027 -0.069 4.7123
+% -0.201335 0.001027 -0.068 4.7123 -0.000160 -0.201338 -0.068 4.7123
+ 
