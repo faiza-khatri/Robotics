@@ -73,7 +73,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     %% phase 4 - grasp
     disp('Phase 4: Grasping...');
     % currentConfig = arb.getpos();
-    arb.setpos(5, pi/3.25, 100);
+    arb.setpos(5, pi/3.2, 100);
     pause(1.5);  % wait for gripper to close fully
     
     %% phase 5 - lift back to hover height
@@ -82,7 +82,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     if checkSelfCollision(robot, grasp_q, hover_q, 200)
         disp('Collision detected on lift'); return;
     end
-    moveToConfig(arb,pi/3.25, hover_q, 80);
+    moveToConfig(arb,pi/3.2, hover_q, 80);
     pause(1.5);
     
     %% phase 6 - transit to above place location
@@ -93,7 +93,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Place hover unreachable'); return;
     end
 
-    moveToConfig(arb, pi/3.25,place_hover_q, 80);
+    moveToConfig(arb, pi/3.2,place_hover_q, 80);
     pause(1.5);
     
     %% phase 7 - descend to place pose
@@ -104,7 +104,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Place pose unreachable'); return;
     end
 
-    moveToConfig(arb, pi/3.25, place_q, 80);
+    moveToConfig(arb, pi/3.2, place_q, 80);
     pause(2.2);
     
     %% phase 8 - release
@@ -181,5 +181,4 @@ pickAndPlace(robotBundle)
 % positions tested:
 % -0.15 0.001027 -0.069 4.7123 0.15 0.001027 -0.069 4.7123
 % -0.201335 0.001027 -0.068 4.7123 -0.000160 -0.201338 -0.068 4.7123
-% 0.12 -0.002 -0.069 4.7123 -0.001 0.12 -0.069 4.7123
  
