@@ -122,7 +122,7 @@ function cTo = cameraToObject()
 
     minPoints = 500;   % tune this
 
-    numBlocksExpected = 2;
+    numBlocksExpected = 3;
 
     figure;
     cTo = zeros(numBlocksExpected, 4,4);

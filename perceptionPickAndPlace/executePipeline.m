@@ -1,30 +1,3 @@
-function pickAndPlace(robot)
-    while true
-        disp('System idle. Enter pick and place locations or q to quit.');
-        
-        user = input('Enter [x1 y1 z1 phi1 x2 y2 z2 phi2] or q: ', 's');
-        if strcmp(user, 'q'), break; end
-        
-        vals = str2num(user);
-        if numel(vals) ~= 8
-            disp('Invalid input. Try again.');
-            continue;
-        end
-        
-        x1=vals(1); y1=vals(2); z1=vals(3); phi1=vals(4);
-        x2=vals(5); y2=vals(6); z2=vals(7); phi2=vals(8);
-        
-        % execute the pipeline
-        success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2);
-        
-        if success
-            disp('Task completed successfully.');
-        else
-            disp('Task failed. Returning to idle.');
-        end
-    end
-end
-
 function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     if isstruct(robot) && isfield(robot, 'model')
         rbtModel = robot.model;
@@ -43,10 +16,10 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     
     moveToConfig(arb, 12, home_q, 80)  % 80 steps = slow
      
-    pause(1.5);
+    pause(2.5);
     % openGripper
     arb.setpos(5, 0, 100);
-    pause(1.5);
+    pause(2.5);
     
     %% phase 2 - pre-grasp hover (above pick location)
     % currentConfig = arb.getpos();
@@ -58,7 +31,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     end
     % arb.setpos(1:4,hover_q,[100 100 100 100])
     moveToConfig(arb, 0, hover_q, 80);
-    pause(1.5);
+    pause(2.5);
     
     %% phase 3 - descend to grasp pose
     disp('Phase 3: Descending to grasp pose...');
@@ -68,13 +41,13 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Grasp pose unreachable'); return;
     end
     moveToConfig(arb, 0, grasp_q, 80);
-    pause(1.5);
+    pause(2.5);
     
     %% phase 4 - grasp
     disp('Phase 4: Grasping...');
     % currentConfig = arb.getpos();
-    arb.setpos(5, pi/3.2, 100);
-    pause(1.5);  % wait for gripper to close fully
+    arb.setpos(5, pi/3.1, 100);
+    pause(2.5);  % wait for gripper to close fully
     
     %% phase 5 - lift back to hover height
     disp('Phase 5: Lifting object...');
@@ -82,8 +55,8 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     if checkSelfCollision(robot, grasp_q, hover_q, 200)
         disp('Collision detected on lift'); return;
     end
-    moveToConfig(arb,pi/3.2, hover_q, 80);
-    pause(1.5);
+    moveToConfig(arb,pi/3.1, hover_q, 80);
+    pause(2.5);
     
     %% phase 6 - transit to above place location
     disp('Phase 6: Moving to place hover...');
@@ -93,8 +66,8 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Place hover unreachable'); return;
     end
 
-    moveToConfig(arb, pi/3.2,place_hover_q, 80);
-    pause(1.5);
+    moveToConfig(arb, pi/3.1,place_hover_q, 80);
+    pause(2.5);
     
     %% phase 7 - descend to place pose
     disp('Phase 7: Descending to place pose...');
@@ -104,13 +77,13 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Place pose unreachable'); return;
     end
 
-    moveToConfig(arb, pi/3.2, place_q, 80);
+    moveToConfig(arb, pi/3.1, place_q, 80);
     pause(2.2);
     
     %% phase 8 - release
     disp('Phase 8: Releasing object...');
     arb.setpos(5, 0, 100);
-    pause(1.5);
+    pause(2.5);
     
     %% phase 9 - retreat back to hover
     disp('Phase 9: Retreating...');
@@ -118,7 +91,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Collision on place hover'); return;
     end
     moveToConfig(arb, 0, place_hover_q, 80);
-    pause(1.5);
+    pause(2.5);
     
     % %% phase 10 - verify placement (FK check)
     % disp('Phase 10: Verifying placement...');
@@ -173,10 +146,6 @@ function q = safeGetPos(arb)
     end
 end
 
-arb = Arbotix('port', 'COM12', 'nservos', 5);
-robotBundle.hw = arb;
-robotBundle.model = getRobot();
-pickAndPlace(robotBundle)
 
 % positions tested:
 % -0.15 0.001027 -0.069 4.7123 0.15 0.001027 -0.069 4.7123

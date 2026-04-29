@@ -5,13 +5,13 @@ function wTo = robotToObject(cTo)
     
     % Rotation: camera optical axis pointing down at table
     % Translation: camera mounted ~0.8m above table origin
-    R_wc = [ 0  -1  0;   % camera y is along our base x, camera x is along our base y, camera z is along our base -ve z
-             -1 0  0;
+    R_wc = [ 0  1  0;   % camera y is along our base x, camera x is along our base y, camera z is along our base -ve z
+             1 0  0;
              0  0 -1];
     
-    distanceFromCamera = 0.46;
-    x_offset = 0.112;
-    y_offset = 0.003;
+    distanceFromCamera = 0.43;
+    x_offset = -0.034; %0.112
+    y_offset = -0.013;
     t_wc = [x_offset; y_offset; distanceFromCamera]; % meters
     
     T_wc = eye(4);
