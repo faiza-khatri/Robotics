@@ -33,7 +33,6 @@ function wTo = robotToObject(cTo)
         R_world   = T_wo(1:3,1:3);
         eul       = rotm2eul(R_world);
         eul_deg   = rad2deg(eul);
-        
         fprintf('Position (meters):\n');
         fprintf('  x = %.4f\n', pos_world(1));
         fprintf('  y = %.4f\n', pos_world(2));
