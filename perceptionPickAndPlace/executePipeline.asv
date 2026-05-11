@@ -16,11 +16,11 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     
     moveToConfig(arb, 12, home_q, 80)  % 80 steps = slow
      
-    pause(4.5);
+    pause(3.5);
     % openGripper
     arb.setpos(5, 0, 100);
-    pause(4.5);
-
+    pause(3.5);
+    pi
     %% phase 2 - pre-grasp hover (above pick location)
     % currentConfig = arb.getpos();
     disp('Phase 2: Moving to pre-grasp hover...');
@@ -31,7 +31,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     end
     % arb.setpos(1:4,hover_q,[100 100 100 100])
     moveToConfig(arb, 0, hover_q, 80);
-    pause(2.5);
+    pause(3.5);
     
     %% phase 3 - descend to grasp pose
     disp('Phase 3: Descending to grasp pose...');
@@ -41,14 +41,14 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Grasp pose unreachable'); return;
     end
     moveToConfig(arb, 0, grasp_q, 80);
-    pause(2.5);
+    pause(3.5);
     
     %% phase 4 - grasp
     disp('Phase 4: Grasping...');
     % currentConfig = arb.getpos();
     % arb.setpos(5, pi/2.7, 100);
     moveToConfig(arb, pi/2.7, grasp_q, 80);
-    pause(2.5);  % wait for gripper to close fully
+    pause(3.5);  % wait for gripper to close fully
     
     %% phase 5 - lift back to hover height
     disp('Phase 5: Lifting object...');
@@ -57,7 +57,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Collision detected on lift'); return;
     end
     moveToConfig(arb,pi/2.7, hover_q, 80);
-    pause(7);
+    pause(3.5);
     
     %% phase 6 - transit to above place location
     disp('Phase 6: Moving to place hover...');
@@ -68,7 +68,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     end
 
     moveToConfig(arb, pi/2.7,place_hover_q, 80);
-    pause(7);
+    pause(3.5);
     
     %% phase 7 - descend to place pose
     disp('Phase 7: Descending to place pose...');
@@ -79,12 +79,12 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     end
 
     moveToConfig(arb, pi/2.7, place_q, 80);
-    pause(2.5);
+    pause(3.5);
     
     %% phase 8 - release
     disp('Phase 8: Releasing object...');
     moveToConfig(arb, 0, place_q, 80);
-    pause(2.5);
+    pause(3.5);
     
     %% phase 9 - retreat back to hover
     disp('Phase 9: Retreating...');
@@ -92,7 +92,7 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
         disp('Collision on place hover'); return;
     end
     moveToConfig(arb, 0, place_hover_q, 80);
-    pause(2.5);
+    pause(3.5);
     
     % %% phase 10 - verify placement (FK check)
     % disp('Phase 10: Verifying placement...');

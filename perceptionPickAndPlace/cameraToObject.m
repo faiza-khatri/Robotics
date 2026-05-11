@@ -1,4 +1,4 @@
-function cTo = cameraToObject()
+function cTo = cameraToObject(colorDetect)
     % Make Pipeline object to manage streaming
     pipe = realsense.pipeline();
     
@@ -53,8 +53,14 @@ function cTo = cameraToObject()
 
     % Extract the depth frame
     depth = fs.get_depth_frame();
+    
     depth_data = double(depth.get_data());
     depth_frame = permute(reshape(depth_data',[ depth.get_width(),depth.get_height()]),[2 1]);
+
+    depth_frame(depth_frame == 0) = NaN; 
+% 
+%     fprintf('depth_data min: %.2f, max: %.2f\n', min(depth_data(:)), max(depth_data(:)));
+% fprintf('depth_frame valid (non-NaN) pixels: %d / %d\n', sum(~isnan(depth_frame(:))), numel(depth_frame(:)));
 
     % Extract the color frame
     color = fs.get_color_frame();    
@@ -79,8 +85,20 @@ function cTo = cameraToObject()
         'MaxNumTrials', 2000, ...       % more RANSAC iterations = better plane fit
         'Confidence', 99.5);
 
+    fprintf('Total points: %d\n', ptCloud.Count);
+    fprintf('Inliers: %d\n', numel(inlierIdx));
+    fprintf('Outliers: %d\n', numel(outlierIdx));
+    
+    if numel(outlierIdx) < 100
+        warning('Plane fit failed');
+        cTo = [];
+        return;
+    end
+
     % Remove table
     objectsCloud = select(ptCloud, outlierIdx);
+
+fprintf('objectsCloud points: %d\n', objectsCloud.Count);
     % figure; pcshow(objectsCloud);
     % title('Plane removed');
     % 1. Segment the ground points
@@ -94,21 +112,29 @@ function cTo = cameraToObject()
     
 
     colors = objectsCloud.Color;
+
+fprintf('colors size: %d x %d\n', size(colors,1), size(colors,2));
     hsvVals = rgb2hsv(im2double(colors));
     
     H = hsvVals(:,1);
     S = hsvVals(:,2);
     V = hsvVals(:,3);
     
-    redMask = (H < 0.05 | H > 0.95) & S > 0.5 & V > 0.2;
-    
-    redCloud = select(objectsCloud, find(redMask));
-    redCloud = pcdenoise(redCloud);
-    % figure; pcshow(redCloud);
-    % title('Red blocks extracted');
+    if strcmp(colorDetect, 'red')
+        colorMask = (H < 0.05 | H > 0.95) & S > 0.5 & V > 0.2;
+    elseif strcmp(colorDetect, 'green')
+        colorMask = (H > 0.25 & H < 0.45) & S > 0.4 & V > 0.2;
+    else 
+        fprintf("We currently have not implemented this color, but it is a simple mask fix ok.\n");
+    end
+
+    colorCloud = select(objectsCloud, find(colorMask));
+    colorCloud = pcdenoise(colorCloud);
+    % figure; pcshow(colorCloud);
+    % title('color blocks extracted');
 
     minDistance = 0.02;   % tunable
-    [labels, numClusters] = pcsegdist(redCloud, minDistance);
+    [labels, numClusters] = pcsegdist(colorCloud, minDistance);
 
     clusterSizes = zeros(numClusters,1);
 
@@ -118,20 +144,31 @@ function cTo = cameraToObject()
     
     % Sort clusters by size
     [sortedSizes, sortedIdx] = sort(clusterSizes,'descend');
+    MIN_CLUSTER_SIZE = 3000;   % tune — noise clusters will be much smaller
+    MAX_CLUSTER_SIZE = 50000; % tune — avoid merging artifacts
+    
+    validIdx = [];
+    for k = 1:numel(sortedIdx)
+        sz = clusterSizes(sortedIdx(k));
+        if sz >= MIN_CLUSTER_SIZE && sz <= MAX_CLUSTER_SIZE
+            validIdx(end+1) = sortedIdx(k);
+            fprintf('Cluster %d: %d points — VALID\n', k, sz);
+        else
+            fprintf('Cluster %d: %d points — SKIPPED (out of range)\n', k, sz);
+        end
+    end
+
+    numBlocksFound = numel(validIdx);
+    fprintf('Valid blocks detected: %d\n', numBlocksFound);
 
 
-    minPoints = 500;   % tune this
+    cTo = zeros(numBlocksFound, 4,4);
 
-    numBlocksExpected = 3;
-
-    figure;
-    cTo = zeros(numBlocksExpected, 4,4);
-
-    for k = 1:numBlocksExpected
+    for k = 1:numBlocksFound
         
-        i = sortedIdx(k);
+        i = validIdx(k);
         idx = find(labels == i);
-        blockCloud = select(redCloud, idx);
+        blockCloud = select(colorCloud, idx);
         
         pts = blockCloud.Location;
         pts = reshape(pts, [], 3);
@@ -202,7 +239,12 @@ function cTo = cameraToObject()
         T(1:3,4) = position';
         
               
-        pcshow(redCloud);
+        if k == 1
+            pcshow(colorCloud);  % show cloud once
+            hold on;
+            drawnow;
+        end
+        
         hold on;
         
         % Plot centroid
@@ -257,8 +299,7 @@ function cTo = cameraToObject()
 
     end
 
-        hold off;
-
+    hold off;
 
 
 

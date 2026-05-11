@@ -1,0 +1,23 @@
+
+function moveToConfig(arb,gripperPos, q_final, nSteps)
+
+    speed = 70;
+    
+    arb.setpos([q_final; gripperPos], [speed speed speed speed speed]);
+
+end
+
+arb = Arbotix('port', 'COM12', 'nservos', 5);
+robotBundle.hw = arb;
+robotBundle.model = getRobot();
+home_q = [0; 0; 0; 0];
+
+    % arb.setpos(1:4,home_q,[100 100 100 100])
+    
+moveToConfig(arb, pi/2.7, home_q, 80)  % 80 steps = slow
+pause(2.5);
+goto = findSolution(-0.11, 0.1, -0.071, 4.71, home_q, robotBundle);
+moveToConfig(arb, pi/2.7, goto, 80);
+
+% x11 = -0.14, y11 = 0.05
+% x12 = -0.11, y12 = 0.1
