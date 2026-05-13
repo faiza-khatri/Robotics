@@ -24,8 +24,8 @@ function success = executePipeline(robot, x1,y1,z1,phi1, x2,y2,z2,phi2)
     %% phase 2 - pre-grasp hover (above pick location)
     % currentConfig = arb.getpos();
     disp('Phase 2: Moving to pre-grasp hover...');
-    test = [x1 y1 z1 + HOVER_HEIGHT]
-    hover_q = findSolution(x1, y1, z1 + HOVER_HEIGHT, phi1, home_q, robot)
+    test = [x1 y1 z1 + HOVER_HEIGHT];
+    hover_q = findSolution(x1, y1, z1 + HOVER_HEIGHT, phi1, home_q, robot);
     if isempty(hover_q)
         disp('Pre-grasp hover unreachable'); return;
     end

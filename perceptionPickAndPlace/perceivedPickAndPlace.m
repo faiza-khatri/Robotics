@@ -1,17 +1,22 @@
 function coloredPerceivedPickAndPlace(robotBundle, color, x21, y21, x22, y22)
-    T_co = cameraToObject(color);
+    fprintf("Executing pipeline for color %s\n", color);
+    [T_co, isCubeArr, ~] = cameraToObject(color);
     T_wo = robotToObject(T_co);
     size(T_wo);
     numBlocks = size(T_wo, 1);
     
     
-    z2 = -0.068;
+    % z2 = -0.068;
     
     
     for i=1:numBlocks
-       
+        isCube = isCubeArr(i);
+        
         fprintf("Block %d: ", i )
-        x1 =  T_wo(i, 1, 4); y1 = T_wo(i, 2, 4); z1 = -0.071; 
+        x1 =  T_wo(i, 1, 4); y1 = T_wo(i, 2, 4); 
+        % z1 = -0.071; 
+        z1 = T_wo(i, 3, 4);
+        
             radial = [x1; y1; 0];
         radial = radial / norm(radial);
     
@@ -28,17 +33,18 @@ function coloredPerceivedPickAndPlace(robotBundle, color, x21, y21, x22, y22)
         alignment = abs(dot(block_X, radial));
         fprintf(' alignment of X with radial = %.4f\n', alignment);
     
-        ALIGN_THRESHOLD = 0.85;   % cos(32 deg) — tune this
-    
-        if alignment < ALIGN_THRESHOLD
+        ALIGN_THRESHOLD = 0.89;   % cos(45 deg) — tune this
+
+        if ~isCube && alignment < ALIGN_THRESHOLD
             fprintf('Block %d UNGRASPABLE: X-axis not along radius (alignment=%.2f)\n', i, alignment);
             continue;
         end
-    
-        fprintf(' block pos:    x=%.3f  y=%.3f\n', x1, y1);
-        fprintf(' radial dir:   x=%.3f  y=%.3f\n', radial(1), radial(2));
-        fprintf(' block X-axis: x=%.3f  y=%.3f\n', block_X(1), block_X(2));
-        fprintf(' block Y-axis: x=%.3f  y=%.3f\n', R_world(1,2), R_world(2,2));
+
+        if(isCube) fprintf("Pick and place for cube.\n");
+        else fprintf("Pick and place for rectangular.\n"); end
+
+        fprintf(' block pos:    x=%.3f  y=%.3f, z=%.3f\n', x1, y1, z1);
+ 
         fprintf(' X alignment=%.4f  Y alignment=%.4f\n', ...
                 abs(dot(block_X, radial)), ...
                 abs(dot(R_world(1:2,2)/norm(R_world(1:2,2)), radial(1:2))));
@@ -65,5 +71,5 @@ end
 arb = Arbotix('port', 'COM12', 'nservos', 5);
 robotBundle.hw = arb;
 robotBundle.model = getRobot();
-coloredPerceivedPickAndPlace(robotBundle, 'green', -0.11, -0.1, -0.13, -0.05);
+% coloredPerceivedPickAndPlace(robotBundle, 'blue', -0.11, -0.1, -0.13, -0.05);
 coloredPerceivedPickAndPlace(robotBundle, 'red', -0.14, 0.05, -0.11, 0.1);

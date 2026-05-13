@@ -1,4 +1,4 @@
-function [cTo, isCubeArr, numBlocksFound] = cameraToObject(colorDetect)
+function [cTo, isCubeArr] = cameraToObject(colorDetect)
     % Make Pipeline object to manage streaming
     pipe = realsense.pipeline();
     
@@ -116,8 +116,7 @@ function [cTo, isCubeArr, numBlocksFound] = cameraToObject(colorDetect)
     V = hsvVals(:,3);
     
     if strcmp(colorDetect, 'red')
-         %(H < 0.05 | H > 0.95) & S > 0.5 & V > 0.2;
-        colorMask = ((H < 0.08) | (H > 0.92)) & S > 0.25 & V > 0.15;
+         %(H < 0.05 | H > 0.95) & S > 0.5 & V > 0.2;colorMask = ((H < 0.08) | (H > 0.92)) & S > 0.25 & V > 0.15;
     elseif strcmp(colorDetect, 'green')
         colorMask = (H > 0.25 & H < 0.45) & S > 0.5 & V > 0.2;
     elseif strcmp(colorDetect, 'yellow')

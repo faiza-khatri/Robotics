@@ -28,9 +28,6 @@ function solutions = findJointAngles(x, y, z, phi)
         reach = sqrt(r_bar^2 + s_bar^2);
         maxReach = a2 + a3;
         
-        fprintf('Required reach: %.4f m\n', reach);
-        fprintf('Max reach:      %.4f m\n', maxReach);
-        fprintf('cos_theta3:     %.4f\n', (r_bar^2 + s_bar^2 - a2^2 - a3^2)/(2*a2*a3));
 
         cos_theta3 = (r_bar^2 + s_bar^2 - a2^2 - a3^2) / (2 * a2 * a3);
 
